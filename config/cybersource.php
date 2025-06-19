@@ -58,7 +58,8 @@ return [
     | Here you may configure the log settings for CyberSource.
     |
     */
-    'log_file' => storage_path('logs/cybersource.log'),
+    'log_file' => storage_path('logs/cybersource_debug.log'),
+    'error_log_file' => storage_path('logs/cybersource_error.log'),
     'log_filename' => 'cybersource',
     'log_size' => '1048576', // 1MB
 

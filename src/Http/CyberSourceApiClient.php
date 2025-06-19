@@ -4,20 +4,17 @@ namespace Asciisd\CyberSource\Http;
 
 use Asciisd\CyberSource\Exceptions\CyberSourceException;
 use Asciisd\CyberSource\Models\Payment;
-use CyberSource\ApiClient;
-use CyberSource\ApiException;
 use CyberSource\Api\CaptureApi;
 use CyberSource\Api\PaymentsApi;
 use CyberSource\Api\RefundApi;
 use CyberSource\Api\VoidApi;
+use CyberSource\ApiClient;
+use CyberSource\ApiException;
+use CyberSource\Authentication\Core\AuthException;
 use CyberSource\Authentication\Core\MerchantConfiguration;
+use CyberSource\Configuration;
 use CyberSource\Model\CapturePaymentRequest;
-use CyberSource\Model\CreatePaymentRequest;
-use CyberSource\Model\PtsV2PaymentsRefundPost201Response;
-use CyberSource\Model\PtsV2PaymentsVoidsPost201Response;
-use CyberSource\Model\RefundCaptureRequest;
 use CyberSource\Model\RefundPaymentRequest;
-use CyberSource\Model\VoidCaptureRequest;
 use CyberSource\Model\VoidPaymentRequest;
 
 class CyberSourceApiClient
@@ -40,6 +37,7 @@ class CyberSourceApiClient
      * Create a new CyberSourceApiClient instance.
      *
      * @param array $config
+     * @throws AuthException
      */
     public function __construct(array $config)
     {
@@ -52,16 +50,16 @@ class CyberSourceApiClient
      *
      * @param \Asciisd\CyberSource\Models\Payment $payment
      * @return array
-     * @throws \CyberSource\ApiException
+     * @throws \CyberSource\ApiException|CyberSourceException
      */
-    public function createPayment(Payment $payment)
+    public function createPayment(Payment $payment): array
     {
         $api = new PaymentsApi($this->apiClient);
-        
+
         try {
             $requestObj = $payment->toCyberSourceRequest();
             $response = $api->createPayment($requestObj);
-            
+
             return [
                 'id' => $response[0]->getId(),
                 'status' => $response[0]->getStatus(),
@@ -85,37 +83,37 @@ class CyberSourceApiClient
      * @param float|null $amount
      * @param array $options
      * @return array
-     * @throws \CyberSource\ApiException
+     * @throws \CyberSource\ApiException|CyberSourceException
      */
-    public function capturePayment(string $transactionId, float $amount = null, array $options = [])
+    public function capturePayment(string $transactionId, float $amount = null, array $options = []): array
     {
         $api = new CaptureApi($this->apiClient);
-        
+
         try {
             // Create client reference information
             $clientReferenceInformation = new \CyberSource\Model\Ptsv2paymentsClientReferenceInformation([
-                'code' => $options['reference'] ?? 'capture-' . time()
+                'code' => $options['reference'] ?? 'capture-'.time()
             ]);
-            
+
             // Create amount details
             $orderInformationAmountDetails = new \CyberSource\Model\Ptsv2paymentsidcapturesOrderInformationAmountDetails([
                 'totalAmount' => $amount ?? $options['amount'] ?? null,
                 'currency' => $options['currency'] ?? 'USD'
             ]);
-            
+
             // Create order information
             $orderInformation = new \CyberSource\Model\Ptsv2paymentsidcapturesOrderInformation([
                 'amountDetails' => $orderInformationAmountDetails
             ]);
-            
+
             // Create capture request
             $requestObj = new CapturePaymentRequest([
                 'clientReferenceInformation' => $clientReferenceInformation,
                 'orderInformation' => $orderInformation
             ]);
-            
+
             $response = $api->capturePayment($requestObj, $transactionId);
-            
+
             return [
                 'id' => $response[0]->getId(),
                 'status' => $response[0]->getStatus(),
@@ -135,25 +133,25 @@ class CyberSourceApiClient
      * @param string $transactionId
      * @param array $options
      * @return array
-     * @throws \CyberSource\ApiException
+     * @throws \CyberSource\ApiException|CyberSourceException
      */
-    public function voidPayment(string $transactionId, array $options = [])
+    public function voidPayment(string $transactionId, array $options = []): array
     {
         $api = new VoidApi($this->apiClient);
-        
+
         try {
             // Create client reference information
             $clientReferenceInformation = new \CyberSource\Model\Ptsv2paymentsClientReferenceInformation([
-                'code' => $options['reference'] ?? 'void-' . time()
+                'code' => $options['reference'] ?? 'void-'.time()
             ]);
-            
+
             // Create void request
             $requestObj = new VoidPaymentRequest([
                 'clientReferenceInformation' => $clientReferenceInformation
             ]);
-            
+
             $response = $api->voidPayment($requestObj, $transactionId);
-            
+
             return [
                 'id' => $response[0]->getId(),
                 'status' => $response[0]->getStatus(),
@@ -172,37 +170,37 @@ class CyberSourceApiClient
      * @param float|null $amount
      * @param array $options
      * @return array
-     * @throws \CyberSource\ApiException
+     * @throws \CyberSource\ApiException|CyberSourceException
      */
-    public function refundPayment(string $transactionId, float $amount = null, array $options = [])
+    public function refundPayment(string $transactionId, float $amount = null, array $options = []): array
     {
         $api = new RefundApi($this->apiClient);
-        
+
         try {
             // Create client reference information
             $clientReferenceInformation = new \CyberSource\Model\Ptsv2paymentsClientReferenceInformation([
-                'code' => $options['reference'] ?? 'refund-' . time()
+                'code' => $options['reference'] ?? 'refund-'.time()
             ]);
-            
+
             // Create amount details
             $orderInformationAmountDetails = new \CyberSource\Model\Ptsv2paymentsidcapturesOrderInformationAmountDetails([
                 'totalAmount' => $amount ?? $options['amount'] ?? null,
                 'currency' => $options['currency'] ?? 'USD'
             ]);
-            
+
             // Create order information
             $orderInformation = new \CyberSource\Model\Ptsv2paymentsidrefundsOrderInformation([
                 'amountDetails' => $orderInformationAmountDetails
             ]);
-            
+
             // Create refund request
             $requestObj = new RefundPaymentRequest([
                 'clientReferenceInformation' => $clientReferenceInformation,
                 'orderInformation' => $orderInformation
             ]);
-            
+
             $response = $api->refundPayment($requestObj, $transactionId);
-            
+
             return [
                 'id' => $response[0]->getId(),
                 'status' => $response[0]->getStatus(),
@@ -221,15 +219,15 @@ class CyberSourceApiClient
      *
      * @param string $transactionId
      * @return array
-     * @throws \CyberSource\ApiException
+     * @throws \CyberSource\ApiException|CyberSourceException
      */
-    public function retrieveTransaction(string $transactionId)
+    public function retrieveTransaction(string $transactionId): array
     {
         $api = new PaymentsApi($this->apiClient);
-        
+
         try {
             $response = $api->getPayment($transactionId);
-            
+
             return [
                 'id' => $response[0]->getId(),
                 'status' => $response[0]->getStatus(),
@@ -250,45 +248,49 @@ class CyberSourceApiClient
      *
      * @param array $config
      * @return \CyberSource\Authentication\Core\MerchantConfiguration
+     * @throws AuthException
      */
-    protected function createMerchantConfig(array $config)
+    protected function createMerchantConfig(array $config): MerchantConfiguration
     {
         $merchantConfig = new MerchantConfiguration();
-        
-        // Set authentication type
+
+        // Set an authentication type
         $merchantConfig->setAuthenticationType($config['auth_type'] ?? 'http_signature');
-        
+
         // Set merchant credentials
         $merchantConfig->setMerchantID($config['merchant_id']);
         $merchantConfig->setApiKeyID($config['api_key_id']);
         $merchantConfig->setSecretKey($config['secret_key']);
-        
+
         // Set environment
         $merchantConfig->setRunEnvironment($config['environment'] ?? 'apitest.cybersource.com');
-        
+
         // Set logging options
-        $merchantConfig->setDebug($config['debug'] ?? false);
-        $merchantConfig->setLogSize($config['log_size'] ?? '1048576');
-        $merchantConfig->setLogFile($config['log_file'] ?? 'cybersource.log');
+        $logConfiguration = new \CyberSource\Logging\LogConfiguration();
+        $logConfiguration->enableLogging($config['debug'] ?? false);
+        $logConfiguration->setLogMaxFiles(3);
+        $logConfiguration->setDebugLogFile($config['log_file'] ?? 'cybersource_debug.log');
+        $logConfiguration->setErrorLogFile($config['error_log_file'] ?? 'cybersource_error.log');
         $merchantConfig->setLogFileName($config['log_filename'] ?? 'cybersource');
-        
+        $merchantConfig->setLogConfiguration($logConfiguration);
+
         // Validate merchant data
         $merchantConfig->validateMerchantData();
-        
+
         return $merchantConfig;
     }
 
     /**
      * Get the connection configuration.
-     *
-     * @return array
      */
-    protected function connectionConfig()
+    protected function connectionConfig(): Configuration
     {
-        return [
-            'verifySslCerts' => true,
-            'timeout' => 300,
-            'connectTimeout' => 30,
-        ];
+        $config = new Configuration();
+
+        $config->setSSLVerification(true);
+        $config->setCurlTimeout(300);
+        $config->setCurlConnectTimeout(30);
+
+        return $config;
     }
 }

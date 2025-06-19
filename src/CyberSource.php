@@ -42,7 +42,7 @@ class CyberSource
      * @return \Asciisd\CyberSource\Models\Transaction
      * @throws \Asciisd\CyberSource\Exceptions\CyberSourceException
      */
-    public function authorize(array $options)
+    public function authorize(array $options): Transaction
     {
         return $this->createPayment($options, false);
     }
@@ -67,7 +67,7 @@ class CyberSource
      * @return \Asciisd\CyberSource\Models\Transaction
      * @throws \Asciisd\CyberSource\Exceptions\CyberSourceException
      */
-    protected function createPayment(array $options, bool $capture = false)
+    protected function createPayment(array $options, bool $capture = false): Transaction
     {
         try {
             // Create a new payment instance
