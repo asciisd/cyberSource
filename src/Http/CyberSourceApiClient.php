@@ -255,10 +255,10 @@ class CyberSourceApiClient
         $merchantConfig = new MerchantConfiguration();
 
         // Set an authentication type
-        $merchantConfig->setAuthenticationType($config['auth_type'] ?? 'http_signature');
+        $merchantConfig->setAuthenticationType(strtoupper(trim($config['auth_type'] ?? 'http_signature')));
 
         // Set merchant credentials
-        $merchantConfig->setMerchantID($config['merchant_id']);
+        $merchantConfig->setMerchantID(trim($config['merchant_id']));
         $merchantConfig->setApiKeyID($config['api_key_id']);
         $merchantConfig->setSecretKey($config['secret_key']);
 

@@ -21,6 +21,12 @@ class CyberSourceServiceProvider extends ServiceProvider
                 __DIR__.'/../database/migrations/' => database_path('migrations'),
             ], 'cybersource-migrations');
 
+            $this->loadViewsFrom(__DIR__.'/../resources/views', 'cybersource');
+
+            $this->publishes([
+                __DIR__.'/../public' => public_path('vendor/cybersource'),
+            ], 'cybersource-public');
+
             // Register commands
             $this->commands([
                 InstallCommand::class,

@@ -1,6 +1,3 @@
-@extends('layouts.app')
-
-@section('content')
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-md-8">
@@ -16,18 +13,18 @@
                     <div class="table-responsive">
                         <table class="table">
                             <tbody>
-                                <tr>
-                                    <th>Transaction ID:</th>
-                                    <td>{{ $transaction_id }}</td>
-                                </tr>
-                                <tr>
-                                    <th>Status:</th>
-                                    <td>{{ $status }}</td>
-                                </tr>
-                                <tr>
-                                    <th>Amount:</th>
-                                    <td>{{ $amount }} {{ $currency }}</td>
-                                </tr>
+                            <tr>
+                                <th>Transaction ID:</th>
+                                <td>{{ $transaction_id }}</td>
+                            </tr>
+                            <tr>
+                                <th>Status:</th>
+                                <td>{{ $status }}</td>
+                            </tr>
+                            <tr>
+                                <th>Amount:</th>
+                                <td>{{ $amount }} {{ $currency }}</td>
+                            </tr>
                             </tbody>
                         </table>
                     </div>
@@ -40,4 +37,3 @@
         </div>
     </div>
 </div>
-@endsection
