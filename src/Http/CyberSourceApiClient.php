@@ -13,7 +13,12 @@ use CyberSource\ApiException;
 use CyberSource\Authentication\Core\AuthException;
 use CyberSource\Authentication\Core\MerchantConfiguration;
 use CyberSource\Configuration;
+use CyberSource\Logging\LogConfiguration;
 use CyberSource\Model\CapturePaymentRequest;
+use CyberSource\Model\Ptsv2paymentsClientReferenceInformation;
+use CyberSource\Model\Ptsv2paymentsidcapturesOrderInformation;
+use CyberSource\Model\Ptsv2paymentsidcapturesOrderInformationAmountDetails;
+use CyberSource\Model\Ptsv2paymentsidrefundsOrderInformation;
 use CyberSource\Model\RefundPaymentRequest;
 use CyberSource\Model\VoidPaymentRequest;
 
@@ -22,14 +27,14 @@ class CyberSourceApiClient
     /**
      * The CyberSource API client instance.
      *
-     * @var \CyberSource\ApiClient
+     * @var ApiClient
      */
     protected $apiClient;
 
     /**
      * The merchant configuration.
      *
-     * @var \CyberSource\Authentication\Core\MerchantConfiguration
+     * @var MerchantConfiguration
      */
     protected $merchantConfig;
 
@@ -48,9 +53,9 @@ class CyberSourceApiClient
     /**
      * Create a payment with CyberSource.
      *
-     * @param \Asciisd\CyberSource\Models\Payment $payment
+     * @param Payment $payment
      * @return array
-     * @throws \CyberSource\ApiException|CyberSourceException
+     * @throws ApiException|CyberSourceException
      */
     public function createPayment(Payment $payment): array
     {
@@ -83,7 +88,7 @@ class CyberSourceApiClient
      * @param float|null $amount
      * @param array $options
      * @return array
-     * @throws \CyberSource\ApiException|CyberSourceException
+     * @throws ApiException|CyberSourceException
      */
     public function capturePayment(string $transactionId, float $amount = null, array $options = []): array
     {
@@ -91,18 +96,18 @@ class CyberSourceApiClient
 
         try {
             // Create client reference information
-            $clientReferenceInformation = new \CyberSource\Model\Ptsv2paymentsClientReferenceInformation([
+            $clientReferenceInformation = new Ptsv2paymentsClientReferenceInformation([
                 'code' => $options['reference'] ?? 'capture-'.time()
             ]);
 
             // Create amount details
-            $orderInformationAmountDetails = new \CyberSource\Model\Ptsv2paymentsidcapturesOrderInformationAmountDetails([
+            $orderInformationAmountDetails = new Ptsv2paymentsidcapturesOrderInformationAmountDetails([
                 'totalAmount' => $amount ?? $options['amount'] ?? null,
                 'currency' => $options['currency'] ?? 'USD'
             ]);
 
             // Create order information
-            $orderInformation = new \CyberSource\Model\Ptsv2paymentsidcapturesOrderInformation([
+            $orderInformation = new Ptsv2paymentsidcapturesOrderInformation([
                 'amountDetails' => $orderInformationAmountDetails
             ]);
 
@@ -133,7 +138,7 @@ class CyberSourceApiClient
      * @param string $transactionId
      * @param array $options
      * @return array
-     * @throws \CyberSource\ApiException|CyberSourceException
+     * @throws ApiException|CyberSourceException
      */
     public function voidPayment(string $transactionId, array $options = []): array
     {
@@ -141,7 +146,7 @@ class CyberSourceApiClient
 
         try {
             // Create client reference information
-            $clientReferenceInformation = new \CyberSource\Model\Ptsv2paymentsClientReferenceInformation([
+            $clientReferenceInformation = new Ptsv2paymentsClientReferenceInformation([
                 'code' => $options['reference'] ?? 'void-'.time()
             ]);
 
@@ -170,7 +175,7 @@ class CyberSourceApiClient
      * @param float|null $amount
      * @param array $options
      * @return array
-     * @throws \CyberSource\ApiException|CyberSourceException
+     * @throws ApiException|CyberSourceException
      */
     public function refundPayment(string $transactionId, float $amount = null, array $options = []): array
     {
@@ -178,18 +183,18 @@ class CyberSourceApiClient
 
         try {
             // Create client reference information
-            $clientReferenceInformation = new \CyberSource\Model\Ptsv2paymentsClientReferenceInformation([
+            $clientReferenceInformation = new Ptsv2paymentsClientReferenceInformation([
                 'code' => $options['reference'] ?? 'refund-'.time()
             ]);
 
             // Create amount details
-            $orderInformationAmountDetails = new \CyberSource\Model\Ptsv2paymentsidcapturesOrderInformationAmountDetails([
+            $orderInformationAmountDetails = new Ptsv2paymentsidcapturesOrderInformationAmountDetails([
                 'totalAmount' => $amount ?? $options['amount'] ?? null,
                 'currency' => $options['currency'] ?? 'USD'
             ]);
 
             // Create order information
-            $orderInformation = new \CyberSource\Model\Ptsv2paymentsidrefundsOrderInformation([
+            $orderInformation = new Ptsv2paymentsidrefundsOrderInformation([
                 'amountDetails' => $orderInformationAmountDetails
             ]);
 
@@ -219,7 +224,7 @@ class CyberSourceApiClient
      *
      * @param string $transactionId
      * @return array
-     * @throws \CyberSource\ApiException|CyberSourceException
+     * @throws ApiException|CyberSourceException
      */
     public function retrieveTransaction(string $transactionId): array
     {
@@ -247,7 +252,7 @@ class CyberSourceApiClient
      * Create the merchant configuration.
      *
      * @param array $config
-     * @return \CyberSource\Authentication\Core\MerchantConfiguration
+     * @return MerchantConfiguration
      * @throws AuthException
      */
     protected function createMerchantConfig(array $config): MerchantConfiguration
@@ -263,15 +268,17 @@ class CyberSourceApiClient
         $merchantConfig->setSecretKey($config['secret_key']);
 
         // Set environment
-        $merchantConfig->setRunEnvironment($config['environment'] ?? 'apitest.cybersource.com');
+        $merchantConfig->setRunEnvironment($config['environment']);
 
         // Set logging options
-        $logConfiguration = new \CyberSource\Logging\LogConfiguration();
+        $logConfiguration = new LogConfiguration();
         $logConfiguration->enableLogging($config['debug'] ?? false);
         $logConfiguration->setLogMaxFiles(3);
-        $logConfiguration->setDebugLogFile($config['log_file'] ?? 'cybersource_debug.log');
-        $logConfiguration->setErrorLogFile($config['error_log_file'] ?? 'cybersource_error.log');
-        $merchantConfig->setLogFileName($config['log_filename'] ?? 'cybersource');
+        $logConfiguration->setDebugLogFile($config['log_file']);
+        $logConfiguration->setErrorLogFile($config['error_log_file']);
+        $logConfiguration->setLogLevel($config['log_level']);
+
+        $merchantConfig->setLogFileName($config['log_filename']);
         $merchantConfig->setLogConfiguration($logConfiguration);
 
         // Validate merchant data

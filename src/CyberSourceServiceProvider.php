@@ -2,15 +2,15 @@
 
 namespace Asciisd\CyberSource;
 
-use Illuminate\Support\ServiceProvider;
 use Asciisd\CyberSource\Console\Commands\InstallCommand;
+use Illuminate\Support\ServiceProvider;
 
 class CyberSourceServiceProvider extends ServiceProvider
 {
     /**
      * Bootstrap the application services.
      */
-    public function boot()
+    public function boot(): void
     {
         if ($this->app->runningInConsole()) {
             $this->publishes([
@@ -37,7 +37,7 @@ class CyberSourceServiceProvider extends ServiceProvider
     /**
      * Register the application services.
      */
-    public function register()
+    public function register(): void
     {
         // Merge config
         $this->mergeConfigFrom(__DIR__.'/../config/cybersource.php', 'cybersource');

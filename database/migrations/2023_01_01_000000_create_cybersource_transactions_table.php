@@ -15,11 +15,13 @@ class CreateCybersourceTransactionsTable extends Migration
     {
         Schema::create('cybersource_transactions', function (Blueprint $table) {
             $table->id();
+            $table->string('payment_id')->unique()->index();
             $table->string('transaction_id')->unique()->index();
             $table->string('reference')->nullable()->index();
             $table->string('status');
             $table->string('payment_method')->default('card');
             $table->string('card_type')->nullable();
+            $table->string('name')->nullable();
             $table->string('last_four')->nullable();
             $table->string('amount');
             $table->string('currency', 3);

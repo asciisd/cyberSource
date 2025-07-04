@@ -49,6 +49,7 @@ return [
     |
     */
     'debug' => env('CYBERSOURCE_DEBUG', false),
+    'log_level' => 'debug',
 
     /*
     |--------------------------------------------------------------------------
@@ -62,6 +63,7 @@ return [
     'error_log_file' => storage_path('logs/cybersource_error.log'),
     'log_filename' => 'cybersource',
     'log_size' => '1048576', // 1MB
+
 
     /*
     |--------------------------------------------------------------------------

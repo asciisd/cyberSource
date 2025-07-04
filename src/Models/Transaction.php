@@ -186,6 +186,11 @@ class Transaction
     }
 
     /**
+     * Get the payment schema if available
+     *
+     */
+
+    /**
      * Get the raw response data.
      *
      * @return array
