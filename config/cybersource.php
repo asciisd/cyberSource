@@ -49,7 +49,7 @@ return [
     |
     */
     'debug' => env('CYBERSOURCE_DEBUG', false),
-    'log_level' => 'debug',
+    'log_level' => env('CYBERSOURCE_DEBUG_LEVEL', 'debug'),
 
     /*
     |--------------------------------------------------------------------------
