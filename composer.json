@@ -10,12 +10,12 @@
         }
     ],
     "require": {
-        "php": "^8.2",
-        "illuminate/support": "^9.0|^10.0|^11.0",
-        "illuminate/http": "^9.0|^10.0|^11.0",
-        "illuminate/config": "^9.0|^10.0|^11.0",
-        "illuminate/database": "^9.0|^10.0|^11.0",
-        "cybersource/rest-client-php": "^0.0.62"
+        "php": "^8.3",
+        "illuminate/support": "^9.0|^10.0|^11.0|^12.0",
+        "illuminate/http": "^9.0|^10.0|^11.0|^12.0",
+        "illuminate/config": "^9.0|^10.0|^11.0|^12.0",
+        "illuminate/database": "^9.0|^10.0|^11.0|^12.0",
+        "cybersource/rest-client-php": "^0.0.71"
     },
     "require-dev": {
         "orchestra/testbench": "^6.0|^7.0|^8.0",
